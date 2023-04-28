@@ -51,10 +51,8 @@ VALUES
     (16, 'Isabela Rodrigues', 6),
     (17, 'Marcos Souza', 7),
     (18, 'Patricia Lima', 8),
-    (19, 'Gustavo Pereira', 9);
-	
-INSERT INTO orientadores VALUES (20, 'Gabriela Almeida', 10);
-
+    (19, 'Gustavo Pereira', 9),
+	(20, 'Gabriela Almeida', 10);
 
 -- Visualiza 
 SELECT * FROM orientadores;
@@ -93,10 +91,8 @@ VALUES
 (17, 'Economia', 'Princípios básicos da economia', 61,9,9),
 (18, 'Finanças', 'Estudo das finanças nas organizações', 25,9,9),
 (19, 'Língua Portuguesa', 'Estudo da língua portuguesa', 4,10,10),
-(20, 'Literatura Brasileira', 'Estudo da literatura brasileira',4,10,10);
-
-
-INSERT INTO disciplinas VALUES (21, 'Literatura Clássica', 'Estudo da literatura clássica', 50,10, 15);
+(20, 'Literatura Brasileira', 'Estudo da literatura brasileira',4,10,10),
+(21, 'Literatura Clássica', 'Estudo da literatura clássica', 50,10, 15);
 
 
 -- Visualizar 
@@ -104,19 +100,40 @@ SELECT * FROM disciplinas;
 
 ----------------------------------------------------------------------------------------------------
 
--- Criação da tabela Disciplina_prerequisito
+-- Criação da tabela Disciplina_prerequisito: AUTORELACIONAMENTO COM DISCIPLINA
 CREATE TABLE disciplina_pre_requisito (
-	codigo_disciplina int REFERENCES disciplinas,
-	codigo_pre_requisito int, 
-	fk_codigo_pre_requisito int,
+	codigo_disciplina int REFERENCES disciplinas(codigo_disciplina),
+	codigo_pre_requisito int REFERENCES disciplinas(codigo_disciplina), 
 	CONSTRAINT validacao_codigo CHECK (codigo_pre_requisito > 0),
-	CONSTRAINT pk_pre_requisito  PRIMARY KEY (codigo_disciplina, codigo_pre_requisito)
+	PRIMARY KEY (codigo_disciplina, codigo_pre_requisito)
 );
 
+-- Inserindo dados
+INSERT INTO disciplina_pre_requisito VALUES
+(9, 1),
+(20, 19),
+(18, 17),
+(6, 1);
 
-ALTER TABLE disciplina_pre_requisito  ADD FOREIGN KEY (fk_codigo_pre_requisito) REFERENCES disciplina_pre_requisito(codigo_pre_requisito);
+-- Visualizando com nome da disiciplina PRE-REQUISTO
+SELECT 
+disciplina_pre_requisito.codigo_disciplina,
+disciplina_pre_requisito.codigo_pre_requisito,
+disciplinas.nome_disciplina
+FROM disciplinas INNER JOIN disciplina_pre_requisito 
+ON disciplinas.codigo_disciplina = disciplina_pre_requisito.codigo_pre_requisito ; 
 
-DROP TABLE disciplina_pre_requisito;
+-- Visualizando com nome da disiciplina QUE TEM PRE-REQUISTO
+
+SELECT 
+disciplina_pre_requisito.codigo_disciplina,
+disciplinas.nome_disciplina,
+disciplina_pre_requisito.codigo_pre_requisito
+FROM disciplinas INNER JOIN disciplina_pre_requisito USING (codigo_disciplina); 
+
+-- Visualizando 
+SELECT * FROM disciplina_pre_requisito;
+
 
 ----------------------------------------------------------------------------------------------------
 -- Criação disciplina_aluno
@@ -344,24 +361,24 @@ SELECT * FROM aluno_graduacao;
 
 
 -- 1. Quais disciplinas o departamento oferece? Ex: Dep 01
-SELECT * FROM disciplinas WHERE disciplinas.codigo_departamento = 1;
-
+-- Exibir todas as linhas
+SELECT * FROM disciplinas WHERE disciplinas.codigo_departamento = 1; 
+-- Exibir código do departamento e o nome da disciplina
 SELECT codigo_departamento, nome_disciplina FROM disciplinas WHERE disciplinas.codigo_departamento = 8;
-
-SELECT  departamentos.nome_departamento, departamentos.codigo_departamento, nome_disciplina FROM disciplinas INNER JOIN departamentos 
+-- Exibir código do departamento, nome e o nome da disciplina
+SELECT  departamentos.codigo_departamento,departamentos.nome_departamento, nome_disciplina FROM disciplinas INNER JOIN departamentos 
 ON departamentos.codigo_departamento = disciplinas.codigo_departamento WHERE disciplinas.codigo_departamento = 8; 
-
 --  Quantas disciplinas o departamento oferece? Ex: Dep 01
 SELECT count(codigo_departamento) FROM disciplinas WHERE disciplinas.codigo_departamento = 10;
 
 
-
--- 2. Quais disciplinas o orientador ministra?
+-- 1. Quais disciplinas o orientador ministra?
 SELECT * FROM disciplinas WHERE disciplinas.codigo_orientador = 8;
-
-SELECT orientadores.codigo_departamento,  disciplinas.codigo_departamento FROM disciplinas INNER JOIN orientadores USING  (codigo_orientador) WHERE disciplinas.codigo_orientador = 15; 
 
 
 -- 2. Quantas disciplinas o orientador ministra?
 SELECT count(codigo_orientador) FROM disciplinas WHERE disciplinas.codigo_orientador = 1;
+
+-- Exibindo o departamento do orientador e o departamento da disciplina
+SELECT orientadores.codigo_departamento,  disciplinas.codigo_departamento FROM disciplinas INNER JOIN orientadores USING  (codigo_orientador) WHERE disciplinas.codigo_orientador = 15; 
 
