@@ -184,6 +184,14 @@ CREATE TABLE alunos(
 	CONSTRAINT validacao_codigo CHECK (codigo_aluno > 0)
 );
 
+ALTER TABLE alunos ADD nivel_escolar varchar(15);
+ALTER TABLE alunos ALTER COLUMN nivel_escolar SET NOT NULL;
+
+UPDATE alunos SET nivel_escolar='graduação' WHERE codigo_aluno>30;
+UPDATE alunos SET nivel_escolar='pós-graduação' WHERE codigo_aluno<30;
+UPDATE alunos SET nivel_escolar='pós-graduação' WHERE codigo_aluno=30;
+
+
 -- Inserir linhas aluno
 INSERT INTO alunos (codigo_aluno, nome_aluno, logradouro, numero, bairro, cidade) 
 VALUES
@@ -253,7 +261,7 @@ UPDATE alunos SET nome_aluno= 'Maria Fernanda Comenta' WHERE codigo_aluno = 2;
 
 
 -- Visualiza tabela
-SELECT * FROM alunos;
+SELECT * FROM alunos ORDER BY codigo_aluno;
 
 
 ----------------------------------------------------------------------------------------------------
@@ -309,8 +317,39 @@ CREATE TABLE formacao_escolar(
 	CONSTRAINT pk_formacao_escolar  PRIMARY KEY (codigo_aluno,formacao_escolar)
 );
 
--- Inserindo linhas
 
+-- Inserindo linhas
+INSERT INTO formacao_escolar VALUES
+(1, 'Ciências de Dados'),
+(2, 'Bacharelado de Química'),
+(3, 'Ciência da computação'),
+(4, 'Biomedicina'),
+(5, 'Ciências Sociais'),
+(6, 'Bacharelado Economia'),
+(7, 'Bacharelado em Letras'),
+(8, 'Bacharelado Psicologia'),
+(9, 'Bacharelado Sociologia'),
+(10, 'Bacharelado em Matemática'),
+(11, 'Técnologo em Análise e Desenvolvimento de Sistemas'),
+(12, 'Técnologo em Análise e Desenvolvimento de Sistemas'),
+(13,  'Bacharelado Sociologia'),
+(14, 'Ciências Sociais'),
+(15, 'Ciências de Dados'),
+(16, 'Ciências de Dados'),
+(17, 'Ciências de Dados'),
+(18, 'Ciências de Dados'),
+(19, 'Ciências de Dados'),
+(20, 'Ciências de Dados'),
+(21, 'Ciência da computação'),
+(22, 'Ciência da computação'),
+(23, 'Ciência da computação'),
+(24, 'Ciência da computação'),
+(25, 'Ciência da computação'),
+(26, 'Bacharelado em Letras'),
+(27, 'Bacharelado em Letras'),
+(28, 'Bacharelado em Letras'),
+(29, 'Bacharelado em Letras'),
+(30, 'Bacharelado em Letras');
 
 
 -- Visualizar 
@@ -411,8 +450,8 @@ SELECT count(codigo_orientador) FROM disciplinas WHERE disciplinas.codigo_orient
 SELECT disciplina_aluno.codigo_aluno, alunos.nome_aluno,
 		disciplina_aluno.codigo_disciplina, disciplinas.nome_disciplina
 FROM disciplinas INNER JOIN disciplina_aluno USING (codigo_disciplina ) 
-INNER JOIN alunos USING (codigo_aluno)
-WHERE codigo_aluno = 1;
+INNER JOIN alunos USING (codigo_aluno);
+WHERE codigo_aluno = 1
 -- 3.2 Quantas disciplinas o aluno está matriculado?
 SELECT alunos.codigo_aluno, alunos.nome_aluno, 
 		count(disciplina_aluno.codigo_aluno)
