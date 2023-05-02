@@ -185,11 +185,12 @@ CREATE TABLE alunos(
 );
 
 ALTER TABLE alunos ADD nivel_escolar varchar(15);
-ALTER TABLE alunos ALTER COLUMN nivel_escolar SET NOT NULL;
 
 UPDATE alunos SET nivel_escolar='graduação' WHERE codigo_aluno>30;
 UPDATE alunos SET nivel_escolar='pós-graduação' WHERE codigo_aluno<30;
 UPDATE alunos SET nivel_escolar='pós-graduação' WHERE codigo_aluno=30;
+
+ALTER TABLE alunos ALTER COLUMN nivel_escolar SET NOT NULL;
 
 
 -- Inserir linhas aluno
@@ -486,5 +487,13 @@ FROM alunos Join disciplina_aluno ON alunos.codigo_aluno = disciplina_aluno.codi
 group by alunos.codigo_aluno
 order by alunos.codigo_aluno;
 
+-- Teste código Gustavo 2
+SELECT alunos.nome_aluno,disciplinas.codigo_departamento,orientadores.nome_orientador,orientadores.codigo_departamento
+FROM disciplinas
+Join disciplina_aluno ON disciplinas.codigo_disciplina = disciplina_aluno.codigo_disciplina
+join alunos ON alunos.codigo_aluno = disciplina_aluno.codigo_aluno
+join aluno_pos_graduacao ON alunos.codigo_aluno = aluno_pos_graduacao.codigo_aluno
+join orientadores ON orientadores.codigo_orientador = aluno_pos_graduacao.codigo_orientador
+order by orientadores.codigo_departamento;
 
 
