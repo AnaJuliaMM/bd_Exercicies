@@ -248,17 +248,22 @@ VALUES
 (59, 'Leticia Silva', 'Rua G', 5900, 'Cidade Ademar', 'São Paulo'),
 (60, 'Eduardo Oliveira', 'Rua H', 6000, 'São Domingos','São Paulo');
 
+UPDATE alunos SET nome_aluno= 'Fabiana Vitória' WHERE codigo_aluno = 1;
+UPDATE alunos SET nome_aluno= 'Maria Fernanda Comenta' WHERE codigo_aluno = 2;
+
+
 -- Visualiza tabela
 SELECT * FROM alunos;
 
 
 ----------------------------------------------------------------------------------------------------
 -- Criação Aluno_pos_graduacao
-CREATE TABLE aluno_pos_graducao(
+CREATE TABLE aluno_pos_graduacao(
 	codigo_aluno int PRIMARY KEY REFERENCES alunos,
 	codigo_orientador int REFERENCES orientadores
 );
 
+ALTER TABLE aluno_pos_graducao RENAME TO aluno_pos_graduacao;	
 
 -- Inserindo linhas
 INSERT INTO aluno_pos_graducao (codigo_aluno, codigo_orientador) VALUES
@@ -319,6 +324,7 @@ CREATE TABLE aluno_graduacao(
 	ano_ingresso int NOT NULL
 );
 
+
 -- Inserindo linhas
 INSERT INTO aluno_graduacao (codigo_aluno, ano_ingresso) VALUES
 (31, 2020),
@@ -360,25 +366,86 @@ SELECT * FROM aluno_graduacao;
 -- Pesquisas no banco de dados
 
 
--- 1. Quais disciplinas o departamento oferece? Ex: Dep 01
+-- 1.1 Quais disciplinas o departamento oferece? Ex: Dep 01
 -- Exibir todas as linhas
 SELECT * FROM disciplinas WHERE disciplinas.codigo_departamento = 1; 
+
 -- Exibir código do departamento e o nome da disciplina
-SELECT codigo_departamento, nome_disciplina FROM disciplinas WHERE disciplinas.codigo_departamento = 8;
+SELECT codigo_departamento, nome_disciplina 
+FROM disciplinas 
+WHERE disciplinas.codigo_departamento = 8;
 -- Exibir código do departamento, nome e o nome da disciplina
-SELECT  departamentos.codigo_departamento,departamentos.nome_departamento, nome_disciplina FROM disciplinas INNER JOIN departamentos 
-ON departamentos.codigo_departamento = disciplinas.codigo_departamento WHERE disciplinas.codigo_departamento = 8; 
---  Quantas disciplinas o departamento oferece? Ex: Dep 01
-SELECT count(codigo_departamento) FROM disciplinas WHERE disciplinas.codigo_departamento = 10;
+SELECT  departamentos.codigo_departamento,departamentos.nome_departamento, nome_disciplina 
+FROM disciplinas INNER JOIN departamentos 
+ON departamentos.codigo_departamento = disciplinas.codigo_departamento 
+WHERE disciplinas.codigo_departamento = 8;
+
+-- 1.2 Quantas disciplinas o departamento oferece? Ex: Dep 01
+SELECT departamentos.codigo_departamento, departamentos.nome_departamento,
+		count(codigo_disciplina) 
+FROM disciplinas INNER JOIN departamentos USING (codigo_departamento)
+GROUP BY departamentos.codigo_departamento
+ORDER BY codigo_departamento;
 
 
--- 1. Quais disciplinas o orientador ministra?
-SELECT * FROM disciplinas WHERE disciplinas.codigo_orientador = 8;
-
-
--- 2. Quantas disciplinas o orientador ministra?
-SELECT count(codigo_orientador) FROM disciplinas WHERE disciplinas.codigo_orientador = 1;
-
+-- 2.1 Quais disciplinas o orientador ministra?
 -- Exibindo o departamento do orientador e o departamento da disciplina
-SELECT orientadores.codigo_departamento,  disciplinas.codigo_departamento FROM disciplinas INNER JOIN orientadores USING  (codigo_orientador) WHERE disciplinas.codigo_orientador = 15; 
+SELECT orientadores.nome_orientador, orientadores.codigo_departamento, 
+		disciplinas.nome_disciplina,  disciplinas.codigo_departamento 
+FROM disciplinas INNER JOIN orientadores USING  (codigo_orientador) 
+WHERE disciplinas.codigo_orientador = 1;
+-- Exibindo todos os atributos 
+SELECT * FROM disciplinas WHERE disciplinas.codigo_orientador = 8
+
+-- 2.2 Quantas disciplinas o orientador ministra?
+SELECT orientadores.codigo_orientador, orientadores.nome_orientador,
+		count(disciplinas.codigo_disciplina)
+FROM disciplinas INNER JOIN orientadores USING  (codigo_orientador)  
+GROUP BY orientadores.codigo_orientador ORDER BY codigo_orientador;
+-- Forma com o where
+SELECT count(codigo_orientador) FROM disciplinas WHERE disciplinas.codigo_orientador = 4;
+
+
+
+-- 3.1 Quantas/Quais disciplinas o aluno está matriculado?
+SELECT disciplina_aluno.codigo_aluno, alunos.nome_aluno,
+		disciplina_aluno.codigo_disciplina, disciplinas.nome_disciplina
+FROM disciplinas INNER JOIN disciplina_aluno USING (codigo_disciplina ) 
+INNER JOIN alunos USING (codigo_aluno)
+WHERE codigo_aluno = 1;
+-- 3.2 Quantas disciplinas o aluno está matriculado?
+SELECT alunos.codigo_aluno, alunos.nome_aluno, 
+		count(disciplina_aluno.codigo_aluno)
+FROM disciplinas 
+INNER JOIN disciplina_aluno USING (codigo_disciplina ) 
+INNER JOIN alunos USING (codigo_aluno)
+GROUP BY  alunos.codigo_aluno
+ORDER BY alunos.codigo_aluno ;
+
+
+-- 4.1 Os orientadores dos alunos de pós-graduação são do mesmo departamento que eles?
+-- Mostrando o departamento do orientador
+SELECT orientadores.codigo_departamento, orientadores.nome_orientador, 
+		aluno_pos_graduacao.codigo_aluno, alunos.nome_aluno
+FROM orientadores 
+INNER JOIN aluno_pos_graduacao USING (codigo_orientador)
+INNER JOIN alunos USING (codigo_aluno);
+-- Mostrando o departamento do aluno
+SELECT alunos.nome_aluno, disciplinas.codigo_departamento,
+		orientadores.nome_orientador, orientadores.codigo_departamento
+FROM orientadores 
+INNER JOIN aluno_pos_graduacao USING (codigo_orientador)
+INNER JOIN alunos USING (codigo_aluno)
+INNER JOIN disciplina_aluno USING (codigo_aluno)
+INNER JOIN disciplinas USING (codigo_disciplina);
+
+
+-- Teste código gustavo
+SELECT alunos.codigo_aluno, alunos.nome_aluno,
+		count(disciplina_aluno.codigo_disciplina)
+FROM alunos Join disciplina_aluno ON alunos.codigo_aluno = disciplina_aluno.codigo_aluno
+group by alunos.codigo_aluno
+order by alunos.codigo_aluno;
+
+
 
